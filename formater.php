@@ -3,7 +3,7 @@
 	require_once('simple_html_dom.php');
 	$toggle = $_GET['toggle'];
 	if($toggle=='1'){
-		$path = '/Users/wangxinyu/works/20160714/html/李佐成_BD2985EF-4C09-DCEB-975F-A1A7B3F95153_F1400M000000000.htm';
+		$path = '/Users/wangxinyu/works/20160714/html/周玉明_BD518363-48B0-DC3F-9B6C-81BE36B7ADA2_F1400M000000000.htm';
 	}else{
 		$path = $_GET['path'];
 	}
@@ -11,6 +11,11 @@
 	$path_parts = pathinfo($path);
 	$original_file = fopen($path,'r');
 	$original_data = fread($original_file, filesize($path));
+	
+	if(strpos($original_data, 'Xinyu Wang')>-1){
+		echo $original_data;
+		exit;
+	}
 	// $data = mb_convert_encoding($original_data, "UTF-8", 'GBK');
 	// echo $original_data;
 
@@ -25,7 +30,7 @@
 	$template_path = dirname(__FILE__).'/template.html';
 	$template = fopen($template_path,'r');
 	$template_str=fread($template,filesize($template_path));
-	echo mb_detect_encoding($template_str);
+	// echo mb_detect_encoding($template_str);
 	// $template_str = mb_convert_encoding($template_str, "GBK", 'UTF-8');
 	$title = '干 部 任 免 表';
 	$template_str=str_replace('{title}',$title, $template_str); 
@@ -48,7 +53,16 @@
 	$template_str = str_replace('{suishu_str}',trim($niansui[0]), $template_str);
 	$template_str = str_replace('{jiguan_str}',preg_replace('/省|市/','.',preg_replace('/人/','',$base_infos[3])), $template_str);
 	$template_str = str_replace('{chushengdi_str}','', $template_str);
-	$template_str = str_replace('{canjiagongzuo_str}',preg_replace('/年/','.',preg_replace('/月参加工作/','',explode('。',$base_infos[4])[0])), $template_str);
+	if(sizeof(explode('中共党员', $base_infos[4]))>1){
+		$canjiagongzuo_str = $base_infos[5];
+		$rudang_str = $base_infos[4];
+	}else{
+		$canjiagongzuo_str = $base_infos[4];
+		$rudang_str = '';
+	}
+	// echo mb_detect_encoding($base_infos[4]);
+	$template_str = str_replace('{rudang_str}',preg_replace('/年/','.',preg_replace('/月参加组织\)/','',explode('(',$rudang_str)[1])), $template_str);
+	$template_str = str_replace('{canjiagongzuo_str}',preg_replace('/年/','.',preg_replace('/月参加工作/','',explode('。',$canjiagongzuo_str)[0])), $template_str);
 	$img_path= $base_table->find('tr')[2]->find('img')[0]->src;
 	$template_str = str_replace('{img_path}',$img_path, $template_str);
 	# --------------------------
@@ -196,7 +210,10 @@
 	}else{
 		$dist_path = $path;
 	}
+	// echo $dist_path;
 	$dist_file = fopen($dist_path, 'w');
-	fwrite($dist_file, $html->outertext);
+	// $o_data = fread($dist_file, filesize($dist_path));
+	// echo $o_data;
+	fwrite($dist_file, $template_str);
 	fclose($dist_file);
 ?>
