@@ -21,18 +21,19 @@ $(document).ready(function(){
 		}
 	});
 
-	if($('#file_name_tables tbody tr').length>0){
-		_.each($('#file_name_tables tbody tr'),function(ele){
-			console.log($(ele).find('td:nth(0)').html());
-			$.ajax({
-				url:'/formater.php',
-				data:{
-					path:$(ele).find('td:nth(0)').html()
-				}
-			}).done(function(res){
-				$(ele).find('td:nth(1)').html('<span class="label label-success">完成转化</span>')
-			});
-		})
-	}
+	// if($('#file_name_tables tbody tr').length>0){
+	// 	_.each($('#file_name_tables tbody tr'),function(ele){
+	// 		console.log($(ele).find('td:nth(0)').html());
+	// 		$.ajax({
+	// 			url:'/formater.php',
+	// 			data:{
+	// 				path:$(ele).find('td:nth(0)').html(),
+	// 				json_folder: $('#folder_path').val()
+	// 			}
+	// 		}).done(function(res){
+	// 			$(ele).find('td:nth(1)').html('<span class="label label-success">完成转化</span>')
+	// 		});
+	// 	})
+	// }
 
 });

@@ -108,7 +108,7 @@
 								<div class="form-group">
 									<label class="control-label col-sm-2">请输入目录:</label>
 									<div class="col-sm-8">
-										<input class="form-control" name="folder_path" value="<? echo $folder_path; ?>"/>
+										<input class="form-control" id="folder_path" name="folder_path" value="<? echo $folder_path; ?>"/>
 									</div>
 									<div class="col-sm-2">
 										<button class="btn btn-primary" type='submit'>确认</button>
@@ -119,6 +119,39 @@
 							<?
 
 								if(is_dir($folder_path)){
+									$word_path= $folder_path.'/干部任免审批表.txt';
+									$word_file = fopen($word_path,'r');
+									$word_data = fread($word_file, filesize($word_path));
+									$word_data = mb_convert_encoding($word_data, 'UTF-8', "GBK");
+									$every_datas = split('干\ 部\ 任\ 免\ 审\ 批\ 表', $word_data);
+									$export_path = $folder_path.'/export_json.txt';
+									$export_file = fopen($export_path, 'w');
+									
+									$export_array = [];
+									for($i=1;$i<sizeof($every_datas);$i++){
+										$every_datas[$i] = str_replace(array(" ","　","\t","\n","\r"),array("","","","",""),$every_datas[$i]);
+										preg_match('/(姓名)(.*)(性别)(.*)(籍贯)(.*)(出生地)(.*)(入党时间)(.*)(参加工作时间)(.*)(健康状况)(.*)(专业技术职务)(.*)(熟悉专业有何专长)(.*)(学历学位)(.*)(全日制教育)(.*)(毕业院校系及专业)(.*)(在职教育)(.*)(毕业院校系及专业)/', $every_datas[$i], $match);
+								 		print_r($match[14]);
+										$name=$match[2];
+										$jiguan = $match[6];
+										$chushengdi = $match[8];
+										$rudangshijian = $match[10];
+										$jiankangzhuangkuang = $match[14];
+										$zhuanchang = $match[18];
+										$quanrizhijiaoyu = $match[22];
+										$quanrizhijiaoyu_yuanxiao = $match[24];
+										$zaizhijiaoyu = $match[26];
+										$zaizhijiaoyu_yuanxiao = $match[28];
+										$export_array[] = json_encode(["name"=>$name, 'jiguan'=>$jiguan,'chushengdi'=>$chushengdi,'rudangshijian'=>$rudangshijian,'jiankangzhuangkuang'=>$jiankangzhuangkuang, 'zhuanchang'=>$zhuanchang,'quanrizhijiaoyu'=>$quanrizhijiaoyu,'quanrizhijiaoyu_yuanxiao'=>$quanrizhijiaoyu_yuanxiao,'zaizhijiaoyu'=>$zaizhijiaoyu,'zaizhijiaoyu_yuanxiao'=>$zaizhijiaoyu_yuanxiao]);
+										// echo '<br>'.mb_convert_encoding($name, 'GBK', 'UTF-8');
+										// echo '<br>'.mb_convert_encoding($jiguan, 'GBK', 'UTF-8');
+										// echo '<br>'.mb_convert_encoding($chushengdi, 'GBK', 'UTF-8');
+										// echo '<br>'.mb_convert_encoding($zhuanchang, 'GBK', 'UTF-8');
+										// echo '<br>';
+									}	
+									// echo mb_convert_encoding($word_data,  "GBK", 'UTF-8');
+									fwrite($export_file, implode('|',$export_array));
+									fclose($export_file);
 									$it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($folder_path));
 									?>
 									<label>该目录下的文件有:</label>

@@ -4,9 +4,16 @@
 	$toggle = $_GET['toggle'];
 	if($toggle=='1'){
 		$path = '/Users/wangxinyu/works/20160714/html/周玉明_BD518363-48B0-DC3F-9B6C-81BE36B7ADA2_F1400M000000000.htm';
+		$json_file_path = '/Users/wangxinyu/works/20160714/export_json.txt';
 	}else{
 		$path = $_GET['path'];
+		$json_file_path = $_GET['json_folder'].'/export_json.txt';
 	}
+	
+
+	$json_file = fopen($json_file_path, 'r');
+	$json_data = fread($json_file, filesize($json_file_path));
+	$every_person_jsons= explode('|', $json_data);
 	
 	$path_parts = pathinfo($path);
 	$original_file = fopen($path,'r');
@@ -51,7 +58,28 @@
 	$niansui = explode('(', $base_infos[2]);
 	$template_str = str_replace('{nianyue_str}',preg_replace('/年/','.',preg_replace('/月出生\)/','',$niansui[1])), $template_str);
 	$template_str = str_replace('{suishu_str}',trim($niansui[0]), $template_str);
-	$template_str = str_replace('{jiguan_str}',preg_replace('/省|市/','.',preg_replace('/人/','',$base_infos[3])), $template_str);
+	$jiguan_str = preg_replace('/省|市|县/','.',preg_replace('/人/','',$base_infos[3]));
+	$jiguan_arrays = explode('.', $jiguan_str);
+	for($i=0;$i<sizeof($every_person_jsons);$i++){
+		$hash = (array)json_decode($every_person_jsons[$i]);
+		echo mb_convert_encoding($hash['rudangshijian'], 'GBK', 'UTF-8');
+		if(strpos($hash['jiguan'], $jiguan_arrays[sizeof($jiguan_arrays)-2])>-1){
+			echo(mb_convert_encoding($hash['rudangshijian'],'GBK', 'UTF-8'));
+			$template_str = str_replace('{jiguan_str}',$hash['jiguan'], $template_str);
+			$template_str = str_replace('{rudang_str}',$hash['rudangshijian'], $template_str);
+			$template_str = str_replace('{chushengdi_str}',$hash['chushengdi'], $template_str);
+			$template_str = str_replace('{jiankangzhuangkuang_str}',$hash['jiankangzhuangkuang'], $template_str);
+			$template_str = str_replace('{zhuanchang_str}',$hash['zhuanchang'], $template_str);
+			$template_str = str_replace('{quanrizhijiaoyu_str}',$hash['quanrizhijiaoyu'], $template_str);
+			$template_str = str_replace('{quanrizhijiaoyu_yuanxiao_str}',$hash['quanrizhijiaoyu_yuanxiao'], $template_str);
+			$template_str = str_replace('{zaizhijiaoyu_str}',$hash['zaizhijiaoyu'], $template_str);
+			$template_str = str_replace('{zaizhijiaoyu_yuanxiao_str}',$hash['zaizhijiaoyu_yuanxiao'], $template_str);
+			
+			break;
+		}
+		
+	}
+	
 	$template_str = str_replace('{chushengdi_str}','', $template_str);
 	if(sizeof(explode('中共党员', $base_infos[4]))>1){
 		$canjiagongzuo_str = $base_infos[5];
