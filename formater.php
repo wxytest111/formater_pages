@@ -109,18 +109,18 @@
 	$template_str = str_replace('{zhuanyejishu_str}',$zhuanyejishu_str, $template_str);
 	# -------------------------
 	# 职务信息 -------------------
-	$zhiwu_div = $divs[0];
-	$zhiwu_table = $zhiwu_div->next_sibling();
-	$zhiwus= $zhiwu_table->find('tr');
-	$zhiwu_template = '<span class="st_font">{zhiwu}</span>';
-	$zhiwu_array = [];
-	for($i=1;$i<sizeof($zhiwus);$i++){
-		// echo $zhiwus[$i]->find('td')[0];
-		$temp_str = $zhiwu_template; 
-		$temp_str=str_replace('{zhiwu}',$zhiwus[$i]->find('td')[0]->plaintext, $temp_str); 
-		$zhiwu_array[]=$temp_str;
-	}
-	$zhiwu_str = join('，',$zhiwu_array);
+	// $zhiwu_div = $divs[0];
+	// $zhiwu_table = $zhiwu_div->next_sibling();
+	// $zhiwus= $zhiwu_table->find('tr');
+	// $zhiwu_template = '<span class="st_font">{zhiwu}</span>';
+	// $zhiwu_array = [];
+	// for($i=1;$i<sizeof($zhiwus);$i++){
+	// 	// echo $zhiwus[$i]->find('td')[0];
+	// 	$temp_str = $zhiwu_template; 
+	// 	$temp_str=str_replace('{zhiwu}',$zhiwus[$i]->find('td')[0]->plaintext, $temp_str); 
+	// 	$zhiwu_array[]=$temp_str;
+	// }
+	// $zhiwu_str = join('，',$zhiwu_array);
 	# --------------------------
 
 	# 简历信息 -------------------
@@ -136,6 +136,8 @@
 		$temp_str=str_replace('{resume}',$resumes[$i]->plaintext, $temp_str); 
 		$resume_str.=$temp_str;
 	}
+	$zhiwu_str = explode('-', $resumes[sizeof($resumes)-1]->plaintext)[1];
+	echo $last_resume;
 	if(sizeof($resumes)<8){
 		for($i=1;$i<8-sizeof($resumes);$i++){
 			$temp_str = $resume_template; 
