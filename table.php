@@ -133,7 +133,7 @@
 										$word_path= $folder_path.DIRECTORY_SEPARATOR.'renmianbiao'.$n.'.txt';
 										$word_file = fopen($word_path,'r');
 										$word_data = fread($word_file, filesize($word_path));
-										$word_data = mb_convert_encoding($word_data, 'UTF-8', "GBK");
+										//$word_data = mb_convert_encoding($word_data, 'UTF-8', "GBK");
 										$every_datas = split('干\ 部\ 任\ 免\ 审\ 批\ 表', $word_data);
 										$export_path = $folder_path.DIRECTORY_SEPARATOR.'export_json.txt';
 										$export_file = fopen($export_path, 'w');
@@ -191,7 +191,7 @@
 									        	// echo 'Key:         ' . $it->key() . "<br/><br/>";
 									        	?>
 									        	<tr>
-													<td class="name_files"><? echo mb_convert_encoding($it->key(),'UTF-8','GBK'); ?></td>
+													<td class="name_files"><? echo $it->key(); ?></td>
 													<td>
 														<span class="label label-default">未进行转换</span>
 													</td>
@@ -202,7 +202,7 @@
 													if(preg_match("/.*\.htm$/", $it->key())){
 													?>
 												<tr>
-													<td class="index_files"><? echo mb_convert_encoding($it->key(),'UTF-8','GBK'); ?></td>
+													<td class="index_files"><? echo $it->key(); ?></td>
 													<td>
 														<span class="label label-default">未进行转换</span>
 													</td>

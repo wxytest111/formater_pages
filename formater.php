@@ -5,9 +5,9 @@
 	$toggle = $_GET['toggle'];
 	if($toggle=='1'){
 		//$path = 'D:\\PDA20160719\全体干部\html\刘丹冰_730C755A-42BF-E108-183A-F58359752B12_F1300O000000000.htm';
-		$path = 'D:\\PDA20160719\省级干部\html\娄勤俭_1F6C5B94-4188-AE86-63E0-19899B1300B7_F10000000000000.htm';
-		$json_file_path = 'D:\\PDA20160719\export_json.txt';
-		$json_file_path2 = 'D:\\PDA20160719\export_json2.txt';
+		$path = '/Users/wangxinyu/works/PDA20160719/省级干部/html/娄勤俭_1F6C5B94-4188-AE86-63E0-19899B1300B7_F10000000000000.htm';
+		$json_file_path = '/Users/wangxinyu/works/PDA20160719/export_json.txt';
+		$json_file_path2 = '/Users/wangxinyu/works/PDA20160719/export_json2.txt';
 	}else{
 		$path = $_GET['path'];
 		$json_file_path = $_GET['json_folder'].DIRECTORY_SEPARATOR.'export_json.txt';
@@ -21,10 +21,11 @@
 	$raw_path = $path;
 
 	$path_parts = pathinfo($path);
-	$path = iconv('UTF-8','GBK', $path);
+	//$path = iconv('UTF-8','GBK', $path);
 	echo $path;
 
 	$link_path = '';
+	/*
 	if(strpos($path, mb_convert_encoding('全体干部','gbk','utf-8'))>-1){
 		$link_path = substr($path, strpos($path, mb_convert_encoding('全体干部','gbk','utf-8')));
 	}else if(strpos($path, mb_convert_encoding('省级干部','gbk','utf-8'))>-1){
@@ -32,8 +33,16 @@
 	}else if(strpos($path, mb_convert_encoding('部机关干部','gbk','utf-8'))>-1) {
 		$link_path = substr($path, strpos($path, mb_convert_encoding('部机关干部','gbk','utf-8')));
 	}
-	echo $link_path;
-	echo 'link_path';
+	*/
+
+	if(strpos($path, '全体干部')>-1){
+		$link_path = substr($path, strpos($path, '全体干部'));
+	}else if(strpos($path, '省级干部')>-1){
+		$link_path = substr($path, strpos($path, '省级干部'));
+	}else if(strpos($path, '部机关干部')>-1) {
+		$link_path = substr($path, strpos($path, '部机关干部'));
+	}
+
 	$original_file = fopen($path,'r');
 	$original_data = fread($original_file, filesize($path));
 	//echo $original_data;
@@ -42,7 +51,7 @@
 		exit;
 	}
 	$data = mb_convert_encoding($original_data, "UTF-8", 'GBK');
-	//echo $original_data;
+	//echo $data;
 
 	// echo '----';
 	// $enc = mb_detect_encoding($data);
@@ -68,11 +77,9 @@
 	$base_table = $html->find('table')[0];
 	$base_info = $base_table->find('tr')[2]->find('p')[0]->plaintext;
 	$base_infos = explode('，', $base_info);
-	$name_str = str_replace(array(" ","　","\t","\n","\r"),array("","","","",""), explode('_',explode('\\',$raw_path)[sizeof(explode('\\',$raw_path))-1])[0]);
-	echo '>>>>>>>>';
-	echo $name_str;
-	echo mb_detect_encoding($name_str);
-	echo '----';
+	$name_str = str_replace(array(" ","　","\t","\n","\r"),array("","","","",""), explode('_',explode(DIRECTORY_SEPARATOR,$raw_path)[sizeof(explode(DIRECTORY_SEPARATOR,$raw_path))-1])[0]);
+	//echo mb_detect_encoding($name_str);
+	echo '分隔符----';
 	$template_str = str_replace('{name_str}',$name_str, $template_str);
 	$template_str = str_replace('{gender_str}',trim($base_infos[0]), $template_str);
 	$template_str = str_replace('{mingzu_str}',trim($base_infos[1]), $template_str);
@@ -93,7 +100,6 @@
 	$renzhishijian='';
 	if(sizeof($zhiwus)>1){
 		$tds= $zhiwus[1]->find('td');
-		echo sizeof($tds);
 		$renzhidanwei = $tds[0]->plaintext;
 		$zhiwu = $tds[1]->plaintext;
 		$renzhishijian = $tds[3]->plaintext;
@@ -103,6 +109,7 @@
 	echo '----';
 	echo $renzhidanwei;
 	echo '---';
+	echo 'asfdasfasdf';
 	for($i=0;$i<sizeof($every_person_jsons);$i++){
 		$hash = (array)json_decode($every_person_jsons[$i]);
 		//echo $hash['jiguan'];
@@ -110,7 +117,7 @@
 		if(($name_str==$hash['name'])&&(strpos($hash['jiguan'], $jiguan_arrays[sizeof($jiguan_arrays)-2])>-1)){
 			echo($hash['rudangshijian']);
 			echo($hash['xianrenzhiwu']);
-			echo '--------------------------------';
+			//echo '---------------------------我勒个去';
 			//print_r(explode('',$hash['jiguan']));
 			$template_str = str_replace('{jiguan_str}',$hash['jiguan'], $template_str);
 			$template_str = str_replace('{rudang_str}',$hash['rudangshijian'], $template_str);
@@ -127,18 +134,14 @@
 			$hash['renzhishijian']=$renzhishijian;
 			$hash['file_path']=$path_parts['basename'];
 			$hash['chushengnianyue']=$nianyue_str;
-			$hash['link_path']=mb_convert_encoding($link_path, 'utf-8', 'gbk');
+			//$hash['link_path']=mb_convert_encoding($link_path, 'utf-8', 'gbk');
+			$hash['link_path']=$link_path;
 			$hash['bbbb']='省级领导\html\呵呵呵呵__sadfasfd.html';
-			echo '1111';
-			echo json_encode('省级干部\html\娄勤俭_1F6C5B94-4188-AE86-63E0-19899B1300B7_F10000000000000.htm');
-			echo '222;';
-			print_r($hash);
 			$json_file2 = fopen($json_file_path2,'a');
 			fwrite($json_file2, json_encode($hash).'|');
 			fclose($json_file2);
 			break;
 		}
-		
 	}
 	
 	$template_str = str_replace('{chushengdi_str}','', $template_str);
@@ -169,20 +172,6 @@
 	}
 	$template_str = str_replace('{zhuanyejishu_str}',$zhuanyejishu_str, $template_str);
 	# -------------------------
-	# 职务信息 -------------------
-	// $zhiwu_div = $divs[0];
-	// $zhiwu_table = $zhiwu_div->next_sibling();
-	// $zhiwus= $zhiwu_table->find('tr');
-	// $zhiwu_template = '<span class="st_font">{zhiwu}</span>';
-	// $zhiwu_array = [];
-	// for($i=1;$i<sizeof($zhiwus);$i++){
-	// 	// echo $zhiwus[$i]->find('td')[0];
-	// 	$temp_str = $zhiwu_template; 
-	// 	$temp_str=str_replace('{zhiwu}',$zhiwus[$i]->find('td')[0]->plaintext, $temp_str); 
-	// 	$zhiwu_array[]=$temp_str;
-	// }
-	// $zhiwu_str = join('，',$zhiwu_array);
-	# --------------------------
 
 	# 简历信息 -------------------
 	$resume_div = $divs[1];
@@ -293,13 +282,15 @@
 	$template_str = str_replace('{resume_str}',$resume_str, $template_str);
 	$template_str = str_replace('{zhiwu_str}',$zhiwu_str, $template_str);
 	$template_str = str_replace('{jiangcheng_str}',$jiangcheng_str, $template_str);
+	# 最后这里还是转成gbk了，因为那个网页上的charset默认是gbk
 	$template_str = mb_convert_encoding($template_str, "GBK", 'UTF-8');
 	echo  $template_str;
 	if($toggle=='1'){
-		$dist_path = 'D:'.DIRECTORY_SEPARATOR.$path_parts['basename'];
+		$dist_path = '/Users/wangxinyu/works/PDA20160719'.DIRECTORY_SEPARATOR.$path_parts['basename'];
 	}else{
 		$dist_path = $path;
 	}
+	$dist_path = $path;
 	// echo $dist_path;
 	$dist_file = fopen($dist_path, 'w');
 	// $o_data = fread($dist_file, filesize($dist_path));
