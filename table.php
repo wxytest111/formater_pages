@@ -1,6 +1,8 @@
 <?
+	//echo phpversion();
 	$folder_path = $_GET["folder_path"];
 	// $folder_path = iconv( 'UTF-8', 'gb2312', $folder_path );
+	set_time_limit(0);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -117,38 +119,52 @@
 
 							</form>
 							<?
-
+								
 								if(is_dir($folder_path)){
-									$word_path= $folder_path.'/干部任免审批表.txt';
-									$word_file = fopen($word_path,'r');
-									$word_data = fread($word_file, filesize($word_path));
-									$word_data = mb_convert_encoding($word_data, 'UTF-8', "GBK");
-									$every_datas = split('干\ 部\ 任\ 免\ 审\ 批\ 表', $word_data);
-									$export_path = $folder_path.'/export_json.txt';
-									$export_file = fopen($export_path, 'w');
+									echo $folder_path;
+									#每次刷那个json
+									$export_path2 = $folder_path.DIRECTORY_SEPARATOR.'export_json2.txt';
+									$export_file2 = fopen($export_path2, 'w');
+									fwrite($export_file2, '');
+									fclose($export_file2);
+
+									$export_array = array();
+									for($n=1;$n<13;$n++){
+										$word_path= $folder_path.DIRECTORY_SEPARATOR.'renmianbiao'.$n.'.txt';
+										$word_file = fopen($word_path,'r');
+										$word_data = fread($word_file, filesize($word_path));
+										$word_data = mb_convert_encoding($word_data, 'UTF-8', "GBK");
+										$every_datas = split('干\ 部\ 任\ 免\ 审\ 批\ 表', $word_data);
+										$export_path = $folder_path.DIRECTORY_SEPARATOR.'export_json.txt';
+										$export_file = fopen($export_path, 'w');
+										
+										
+										for($i=1;$i<sizeof($every_datas);$i++){
+											$every_datas[$i] = str_replace(array(" ","　","\t","\n","\r"),array("","","","",""),$every_datas[$i]);
+											preg_match('/(姓名)(.*)(性别)(.*)(籍贯)(.*)(出生地)(.*)(入党时间)(.*)(参加工作时间)(.*)(健康状况)(.*)(专业技术职务)(.*)(熟悉专业有何专长)(.*)(学历学位)(.*)(全日制教育)(.*)(毕业院校系及专业)(.*)(在职教育)(.*)(毕业院校系及专业)(.*)(现任职务)(.*)(拟任职务)(.*)(简历)(.*)(奖惩情况)/', $every_datas[$i], $match);
+											$name=$match[2];
+											$jiguan = $match[6];
+											$chushengdi = $match[8];
+											$rudangshijian = $match[10];
+											$canjiagongzuoshijian = $match[12];
+											$jiankangzhuangkuang = $match[14];
+											$zhuanyejishuzhiwu = $match[16];
+											$zhuanchang = $match[18];
+											$quanrizhijiaoyu = $match[22];
+											$quanrizhijiaoyu_yuanxiao = $match[24];
+											$zaizhijiaoyu = $match[26];
+											$zaizhijiaoyu_yuanxiao = $match[28];
+											$jianlis = explode('－',$match[34]);
+											$xianrenzhiwu = $match[30];
+											$export_array[] = json_encode(array("name"=>$name, 'jiguan'=>$jiguan,'chushengdi'=>$chushengdi,'rudangshijian'=>$rudangshijian,'canjiagongzuoshijian'=>$canjiagongzuoshijian,'zhuanyejishuzhiwu'=>$zhuanyejishuzhiwu,'jiankangzhuangkuang'=>$jiankangzhuangkuang, 'zhuanchang'=>$zhuanchang,'quanrizhijiaoyu'=>$quanrizhijiaoyu,'quanrizhijiaoyu_yuanxiao'=>$quanrizhijiaoyu_yuanxiao,'zaizhijiaoyu'=>$zaizhijiaoyu,'zaizhijiaoyu_yuanxiao'=>$zaizhijiaoyu_yuanxiao, 'xianrenzhiwu'=>$xianrenzhiwu,'number'=>$n));
+											// echo '<br>'.$name;
+											// echo '<br>'.mb_convert_encoding($jiguan, 'GBK', 'UTF-8');
+											// echo '<br>'.mb_convert_encoding($chushengdi, 'GBK', 'UTF-8');
+											// echo '<br>'.mb_convert_encoding($zhuanchang, 'GBK', 'UTF-8');
+											// echo '<br>';
+										}	
+									}
 									
-									$export_array = [];
-									for($i=1;$i<sizeof($every_datas);$i++){
-										$every_datas[$i] = str_replace(array(" ","　","\t","\n","\r"),array("","","","",""),$every_datas[$i]);
-										preg_match('/(姓名)(.*)(性别)(.*)(籍贯)(.*)(出生地)(.*)(入党时间)(.*)(参加工作时间)(.*)(健康状况)(.*)(专业技术职务)(.*)(熟悉专业有何专长)(.*)(学历学位)(.*)(全日制教育)(.*)(毕业院校系及专业)(.*)(在职教育)(.*)(毕业院校系及专业)(.*)(现任职务)/', $every_datas[$i], $match);
-								 		// print_r($match[28]);
-										$name=$match[2];
-										$jiguan = $match[6];
-										$chushengdi = $match[8];
-										$rudangshijian = $match[10];
-										$jiankangzhuangkuang = $match[14];
-										$zhuanchang = $match[18];
-										$quanrizhijiaoyu = $match[22];
-										$quanrizhijiaoyu_yuanxiao = $match[24];
-										$zaizhijiaoyu = $match[26];
-										$zaizhijiaoyu_yuanxiao = $match[28];
-										$export_array[] = json_encode(["name"=>$name, 'jiguan'=>$jiguan,'chushengdi'=>$chushengdi,'rudangshijian'=>$rudangshijian,'jiankangzhuangkuang'=>$jiankangzhuangkuang, 'zhuanchang'=>$zhuanchang,'quanrizhijiaoyu'=>$quanrizhijiaoyu,'quanrizhijiaoyu_yuanxiao'=>$quanrizhijiaoyu_yuanxiao,'zaizhijiaoyu'=>$zaizhijiaoyu,'zaizhijiaoyu_yuanxiao'=>$zaizhijiaoyu_yuanxiao]);
-										// echo '<br>'.mb_convert_encoding($name, 'GBK', 'UTF-8');
-										// echo '<br>'.mb_convert_encoding($jiguan, 'GBK', 'UTF-8');
-										// echo '<br>'.mb_convert_encoding($chushengdi, 'GBK', 'UTF-8');
-										// echo '<br>'.mb_convert_encoding($zhuanchang, 'GBK', 'UTF-8');
-										// echo '<br>';
-									}	
 									// echo mb_convert_encoding($word_data,  "GBK", 'UTF-8');
 									fwrite($export_file, implode('|',$export_array));
 									fclose($export_file);
@@ -164,23 +180,37 @@
 											</thead>   
 											<tbody>
 									<?
+									$persons_files = [];
+									$index_files = [];
 									while($it->valid()) {
 
 									    if (!$it->isDot()) {
-									    	if(preg_match("/.*00000\.htm$/", $it->key())){
+									    	if(preg_match("/.*000\.htm$/", $it->key())){
 									    		// echo 'SubPathName: ' . $it->getSubPathName() . "<br/>";
 									        	// echo 'SubPath:     ' . $it->getSubPath() . "<br/>";
 									        	// echo 'Key:         ' . $it->key() . "<br/><br/>";
 									        	?>
 									        	<tr>
-													<td><? echo $it->key(); ?></td>
+													<td class="name_files"><? echo mb_convert_encoding($it->key(),'UTF-8','GBK'); ?></td>
 													<td>
 														<span class="label label-default">未进行转换</span>
 													</td>
 														
 												</tr>
 									        	<?
-									    	}
+									    	}else{
+													if(preg_match("/.*\.htm$/", $it->key())){
+													?>
+												<tr>
+													<td class="index_files"><? echo mb_convert_encoding($it->key(),'UTF-8','GBK'); ?></td>
+													<td>
+														<span class="label label-default">未进行转换</span>
+													</td>
+														
+												</tr>
+													<?
+													}
+												}
 									        
 									    }
 
